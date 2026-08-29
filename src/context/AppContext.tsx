@@ -147,7 +147,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [userRole, setUserRole] = useState<'citizen' | 'volunteer' | 'ngo' | 'responder' | 'admin'>('citizen');
 
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>(() => {
-    const saved = localStorage.getItem('rakshanet_contacts');
+    const saved = localStorage.getItem('rakshak_contacts');
     return saved
       ? JSON.parse(saved)
       : [
@@ -467,7 +467,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Sync contacts to LocalStorage
   useEffect(() => {
-    localStorage.setItem('rakshanet_contacts', JSON.stringify(emergencyContacts));
+    localStorage.setItem('rakshak_contacts', JSON.stringify(emergencyContacts));
   }, [emergencyContacts]);
 
   // Detect Geolocation

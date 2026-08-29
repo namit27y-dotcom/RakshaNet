@@ -1,5 +1,5 @@
 -- Migration script for Module 3 Updates
--- Targets project: Krishi Saathi / RakshaNet (ghvsrynwjvchnuqkkzzo)
+-- Targets project: Krishi Saathi / Rakshak (ghvsrynwjvchnuqkkzzo)
 
 -- 1. Ensure required columns are present in tables
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone TEXT;

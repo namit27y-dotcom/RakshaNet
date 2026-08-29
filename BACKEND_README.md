@@ -1,4 +1,4 @@
-# SURAKSHA (RakshaNet) — Production Backend & Architecture Documentation
+# SURAKSHA (Rakshak) — Production Backend & Architecture Documentation
 
 SURAKSHA (Project Codename) is an AI-assisted Disaster Management and Emergency Response Platform designed for Smart India Hackathon.
 

@@ -6,7 +6,7 @@ import { createReliefCamp, updateCampOccupancy, getReliefCamps } from './reliefC
 import { getRecoveryDashboardStats } from './recoveryAnalyticsService';
 
 const runTests = async () => {
-  console.log('🏁 Starting RakshaNet Module 3 Integration Tests...\n');
+  console.log('🏁 Starting Rakshak Module 3 Integration Tests...\n');
 
   try {
     // 1. Monkey-patch supabase.auth.getUser for offline database testing
@@ -18,7 +18,7 @@ const runTests = async () => {
         data: {
           user: {
             id: mockUserId,
-            email: 'admin@rakshanet.org',
+            email: 'admin@rakshak.org',
             role: 'authenticated',
             app_metadata: {},
             user_metadata: { role: 'admin' },

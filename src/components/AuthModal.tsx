@@ -56,7 +56,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   const handleDemoLogin = async (role: 'citizen' | 'volunteer' | 'ngo' | 'responder' | 'admin', name: string) => {
     setIsLoading(true);
-    const demoEmail = `${role}@rakshanet.org`;
+    const demoEmail = `${role}@rakshak.org`;
     const demoPassword = `raksha123`;
 
     try {
@@ -113,7 +113,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </div>
           <div>
             <h3 className="text-lg font-black font-heading text-slate-900">
-              RakshaNet Command Center Access
+              Rakshak Command Center Access
             </h3>
             <p className="text-xs text-slate-500">
               {isSignUp ? 'Create new platform credentials' : 'Authenticate to gain operational clearance'}
@@ -140,7 +140,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <label className="text-[11px] font-bold text-slate-700 uppercase">Email Address</label>
             <input
               type="email"
-              placeholder="operator@rakshanet.org"
+              placeholder="operator@rakshak.org"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full mt-1 px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-rose-500"

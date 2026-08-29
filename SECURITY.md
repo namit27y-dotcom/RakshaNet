@@ -1,4 +1,4 @@
-# SURAKSHA (RakshaNet) — Security Architecture & Guidelines
+# SURAKSHA (Rakshak) — Security Architecture & Guidelines
 
 ## Key Principles
 1. **Row Level Security (RLS)**: Enforced on all PostgreSQL tables. Access permissions are granted based on verified claims.

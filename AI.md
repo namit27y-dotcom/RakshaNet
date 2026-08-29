@@ -1,4 +1,4 @@
-# SURAKSHA (RakshaNet) — AI Integration Architecture
+# SURAKSHA (Rakshak) — AI Integration Architecture
 
 ## Overview
 SURAKSHA integrates Gemini 1.5 Flash as an intelligent decision-support system for disaster management commanders and emergency teams.

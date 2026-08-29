@@ -9,7 +9,7 @@ export const Footer: React.FC = () => {
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-slate-900 font-bold font-heading text-sm">
             <ShieldCheck className="w-5 h-5 text-rose-600" />
-            <span>RakshaNet Platform</span>
+            <span>Rakshak Platform</span>
           </div>
           <p className="text-slate-600 text-[11px] leading-relaxed">
             A unified disaster management platform connecting citizens, emergency responders, and NGOs across India during all three disaster phases.
@@ -72,13 +72,13 @@ export const Footer: React.FC = () => {
             Hackathon Positioning
           </h4>
           <blockquote className="p-3 bg-white rounded-lg border border-slate-200 text-[11px] italic text-slate-700 leading-normal shadow-sm">
-            "SACHET broadcasts warnings down. RakshaNet closes the loop — enabling citizen reporting, live rescue tracking, and recovery resource matching in one place."
+            "SACHET broadcasts warnings down. Rakshak closes the loop — enabling citizen reporting, live rescue tracking, and recovery resource matching in one place."
           </blockquote>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto pt-4 border-t border-slate-200 text-center text-[10px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <p>© 2026 RakshaNet — Built for Student Innovation Hackathon (Disaster Management Track).</p>
+        <p>© 2026 Rakshak — Built for Student Innovation Hackathon (Disaster Management Track).</p>
         <p className="text-slate-500">Built with React, Leaflet.js & Open Emergency Data.</p>
       </div>
     </footer>

@@ -1,4 +1,4 @@
-# SURAKSHA (RakshaNet) — Database Schema & RLS Policy Reference
+# SURAKSHA (Rakshak) — Database Schema & RLS Policy Reference
 
 The database is built on Supabase PostgreSQL with 12 core operational tables:
 

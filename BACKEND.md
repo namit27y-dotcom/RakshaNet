@@ -1,4 +1,4 @@
-# SURAKSHA (RakshaNet) — Backend Architecture & Integration Guide
+# SURAKSHA (Rakshak) — Backend Architecture & Integration Guide
 
 SURAKSHA uses a cloud-native, serverless Supabase backend powering real-time disaster management, incident response, and AI situation briefing.
 

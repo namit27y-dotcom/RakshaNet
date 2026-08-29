@@ -65,7 +65,7 @@ export const Header: React.FC = () => {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
           </span>
-          <span className="text-rose-700 font-bold tracking-wider">RAKSHANET DISASTER WATCH:</span>
+          <span className="text-rose-700 font-bold tracking-wider">RAKSHAK DISASTER WATCH:</span>
           <span>SACHET Warning System Sync Active</span>
           <span className="hidden md:inline text-slate-400">•</span>
           <span className="hidden md:inline text-slate-600">NDRF Helplines: 1070 | SDMA: 1078 | Emergency: 112</span>
@@ -104,7 +104,7 @@ export const Header: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-xl font-black tracking-tight text-slate-900 font-heading">RakshaNet</span>
+              <span className="text-xl font-black tracking-tight text-slate-900 font-heading">Rakshak</span>
               <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 border border-rose-200">
                 INDIA
               </span>

@@ -1,4 +1,4 @@
-# SURAKSHA (RakshaNet) — Edge Functions & API Reference
+# SURAKSHA (Rakshak) — Edge Functions & API Reference
 
 SURAKSHA exposes server-side endpoints via Supabase Edge Functions to ensure sensitive API keys (OpenWeather, Gemini AI) are never exposed to client browsers.
 

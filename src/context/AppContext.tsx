@@ -311,7 +311,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           locationName: r.ngos?.address || 'Relief Center',
           coordinates: [r.ngos?.latitude || 0, r.ngos?.longitude || 0],
           timestamp: new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: (Number(r.quantity_available) - Number(r.quantity_allocated)) <= 0 ? 'FULFILLED' : 'OPEN'
+          status: (Number(r.quantity_available) - Number(r.quantity_allocated)) <= 0 ? 'FULFILLED' : 'OPEN',
+          imageUrl: r.image_url || r.photo_url || undefined
         }));
 
         const needResources: ResourceListing[] = (aidNeeds || []).map((n: any) => ({
@@ -326,7 +327,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           locationName: n.location || '',
           coordinates: [n.latitude || 0, n.longitude || 0],
           timestamp: new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: n.status === 'fulfilled' ? 'FULFILLED' : (n.status === 'partially_fulfilled' ? 'MATCHED' : 'OPEN')
+          status: n.status === 'fulfilled' ? 'FULFILLED' : (n.status === 'partially_fulfilled' ? 'MATCHED' : 'OPEN'),
+          imageUrl: n.image_url || n.photo_url || undefined
         }));
 
         setResources([...haveResources, ...needResources]);

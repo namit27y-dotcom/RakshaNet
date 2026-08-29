@@ -106,6 +106,7 @@ export interface ResourceListing {
   coordinates: [number, number];
   timestamp: string;
   status: 'OPEN' | 'MATCHED' | 'FULFILLED';
+  imageUrl?: string;
 }
 
 export interface USGSQuake {

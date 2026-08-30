@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User } from '@supabase/supabase-js';
 import {
   DistrictZone,
@@ -76,6 +76,9 @@ interface AppContextType {
   responseTeams: ResponseTeam[];
   alerts: AlertItem[];
   currentWeather: WeatherData | null;
+  isWeatherLoading: boolean;
+  weatherError: string | null;
+  refreshWeather: (bypassCache?: boolean) => Promise<void>;
 
   // Filters
   filterDisasterType: DisasterType;
@@ -139,6 +142,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [responseTeams, setResponseTeams] = useState<ResponseTeam[]>([]);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [currentWeather, setCurrentWeather] = useState<WeatherData | null>(null);
+  const [isWeatherLoading, setIsWeatherLoading] = useState<boolean>(false);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
 
   // Auth state variables
@@ -453,14 +458,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
+  const refreshWeather = useCallback(async (bypassCache = false) => {
+    setIsWeatherLoading(true);
+    setWeatherError(null);
+    try {
+      const w = await fetchWeatherForLocation(
+        selectedLocation.coordinates[0],
+        selectedLocation.coordinates[1],
+        `${selectedLocation.district}, ${selectedLocation.state}`,
+        bypassCache
+      );
+      setCurrentWeather(w);
+    } catch (e) {
+      console.warn('Weather fetch error:', e);
+      setWeatherError('Weather data temporarily unavailable.');
+    } finally {
+      setIsWeatherLoading(false);
+    }
+  }, [selectedLocation]);
+
   // Fetch Weather when selected location changes
   useEffect(() => {
-    fetchWeatherForLocation(
-      selectedLocation.coordinates[0],
-      selectedLocation.coordinates[1],
-      `${selectedLocation.district}, ${selectedLocation.state}`
-    ).then((w) => setCurrentWeather(w));
-  }, [selectedLocation]);
+    refreshWeather(false);
+  }, [refreshWeather]);
+
+  // Periodic weather refresh every 10 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshWeather(false);
+    }, 10 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [refreshWeather]);
 
   // Fetch USGS Quakes on mount
   useEffect(() => {
@@ -842,6 +870,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         responseTeams,
         alerts,
         currentWeather,
+        isWeatherLoading,
+        weatherError,
+        refreshWeather,
         filterDisasterType,
         setFilterDisasterType,
         filterUrgency,

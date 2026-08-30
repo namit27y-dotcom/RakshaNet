@@ -110,3 +110,104 @@ export const calculateDisasterRiskScore = (params: {
     generatedAt: new Date().toISOString()
   };
 };
+
+export interface WeatherRiskAssessment {
+  level: "LOW" | "MODERATE" | "HIGH" | "CRITICAL";
+  score: number;
+  reasons: string[];
+  recommendations: string[];
+}
+
+export const calculateWeatherRisk = (weather: WeatherData): WeatherRiskAssessment => {
+  let score = 10; // base score
+  const reasons: string[] = [];
+  const recommendations: string[] = [];
+
+  const temp = weather.temperature;
+  const humidity = weather.humidity;
+  const windSpeed = weather.wind_speed;
+  const rainfall = weather.rainfall || 0;
+  const condition = weather.weather_condition.toLowerCase();
+
+  // 1. Temperature checks
+  if (temp > 40) {
+    score += 25;
+    reasons.push(`Extreme heatwave detected (${temp}°C)`);
+    recommendations.push("Avoid direct sunlight between 11 AM and 3 PM");
+    recommendations.push("Maintain constant hydration and stay in cool environments");
+  } else if (temp < 10) {
+    score += 15;
+    reasons.push(`Cold wave conditions (${temp}°C)`);
+    recommendations.push("Wear layered warm clothing");
+  }
+
+  // 2. Wind Speed checks
+  if (windSpeed > 60) {
+    score += 35;
+    reasons.push(`Gale-force winds detected (${windSpeed} km/h)`);
+    recommendations.push("Secure loose outdoor objects and stay indoors");
+    recommendations.push("Avoid parking vehicles under trees or near power lines");
+  } else if (windSpeed > 30) {
+    score += 15;
+    reasons.push(`Strong wind gusts (${windSpeed} km/h)`);
+    recommendations.push("Caution advised for high-profile vehicles");
+  }
+
+  // 3. Rainfall / Precipitation checks
+  if (rainfall > 30) {
+    score += 40;
+    reasons.push(`Torrential downpour active (${rainfall} mm/h)`);
+    recommendations.push("Move to higher ground if in flood-prone lowlands");
+    recommendations.push("Avoid walking or driving through waterlogged routes");
+  } else if (rainfall > 10) {
+    score += 20;
+    reasons.push(`Heavy rainfall detected (${rainfall} mm/h)`);
+    recommendations.push("Monitor local water levels and storm drain flows");
+  } else if (rainfall > 2) {
+    score += 5;
+    reasons.push(`Light to moderate rain (${rainfall} mm/h)`);
+  }
+
+  // 4. Condition keywords
+  if (condition.includes("thunderstorm") || condition.includes("lightning") || condition.includes("storm")) {
+    score += 20;
+    reasons.push("Severe thunderstorm activity");
+    recommendations.push("Unplug sensitive electronic appliances");
+    recommendations.push("Seek immediate safe shelter; do not stand under tall trees");
+  } else if (condition.includes("cyclone") || condition.includes("hurricane") || condition.includes("typhoon")) {
+    score += 45;
+    reasons.push("Cyclonic storm warning active");
+    recommendations.push("Follow evacuation alerts from local disaster authorities immediately");
+  }
+
+  // 5. Official alerts check
+  if (weather.alerts && weather.alerts.length > 0) {
+    score += weather.alerts.length * 15;
+    weather.alerts.forEach(alert => {
+      reasons.push(`Official alert: ${alert.title}`);
+      recommendations.push(`Heed instructions: ${alert.message}`);
+    });
+  }
+
+  // Cap score between 0 and 100
+  const finalScore = Math.min(100, Math.max(0, Math.round(score)));
+
+  let level: "LOW" | "MODERATE" | "HIGH" | "CRITICAL" = "LOW";
+  if (finalScore >= 75) level = "CRITICAL";
+  else if (finalScore >= 50) level = "HIGH";
+  else if (finalScore >= 25) level = "MODERATE";
+
+  // Default recommendations if none added
+  if (recommendations.length === 0) {
+    recommendations.push("Weather conditions are normal. Continue standard safety monitoring.");
+    recommendations.push("Keep emergency communication devices charged.");
+  }
+
+  return {
+    level,
+    score: finalScore,
+    reasons: reasons.length > 0 ? reasons : ["No immediate severe weather threats detected."],
+    recommendations: [...new Set(recommendations)]
+  };
+};
+

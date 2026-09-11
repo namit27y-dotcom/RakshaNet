@@ -63,7 +63,7 @@ export const generateSituationBriefWithAi = async (params: {
     console.warn('Edge Function generate-brief offline or fallback:', e);
   }
 
-  return `🚨 **SURAKSHA OPERATIONAL SITUATION BRIEF** (${params.district})
+  return `🚨 **RAKSHAK OPERATIONAL SITUATION BRIEF** (${params.district})
 
 • **Current Risk Status**: HIGH / CRITICAL (Sync Active with IMD & SDMA Radar)
 • **Priority Incident**: ${params.criticalCount} Critical SOS tickets require immediate team dispatch.

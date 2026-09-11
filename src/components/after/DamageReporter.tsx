@@ -79,6 +79,10 @@ export const DamageReporter: React.FC = () => {
   };
 
   const handleVerify = async (id: string) => {
+    if (userRole !== 'admin' && userRole !== 'responder') {
+      showToast('❌ Access Restricted: Verification requires Rescue Responder or Admin clearance.');
+      return;
+    }
     try {
       showToast('⌛ Verifying damage report...');
       await verifyDamageReport(id);
@@ -90,6 +94,10 @@ export const DamageReporter: React.FC = () => {
   };
 
   const handleReject = async (id: string) => {
+    if (userRole !== 'admin' && userRole !== 'responder') {
+      showToast('❌ Access Restricted: Rejecting reports requires Rescue Responder or Admin clearance.');
+      return;
+    }
     try {
       showToast('⌛ Rejecting damage report...');
       await rejectDamageReport(id);
@@ -99,6 +107,7 @@ export const DamageReporter: React.FC = () => {
       showToast(`❌ Action failed: ${err.message || err}`);
     }
   };
+
 
   // Responders and Admins see all reports; citizens see only verified (unless they are the reporter, which RLS enforces)
   const visibleReports = damageReports.filter((r) => {

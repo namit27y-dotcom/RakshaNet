@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
 import {
   ShieldAlert,
@@ -14,7 +15,9 @@ import {
   HeartHandshake,
   Sparkles,
   X,
-  LogIn
+  LogIn,
+  LogOut,
+  UserCheck
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -31,12 +34,20 @@ export const Header: React.FC = () => {
     isDemoSimulating,
     toggleDemoSimulation,
     generateBrief,
-    isGeneratingBrief,
-    currentUser,
-    currentProfile,
-    userRole,
-    signOut
+    isGeneratingBrief
   } = useApp();
+
+  const {
+    user,
+    profile,
+    role,
+    isAuthenticated,
+    isDemoUser,
+    demoRole,
+    signOut,
+    exitDemoMode
+  } = useAuth();
+
 
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [districtSearch, setDistrictSearch] = useState('');
@@ -160,27 +171,46 @@ export const Header: React.FC = () => {
         {/* Location Picker & Quick SOS Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Auth Trigger Indicator */}
-          {currentUser ? (
+          {isDemoUser ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+              <span className="max-w-[80px] sm:max-w-[120px] truncate">{profile?.full_name}</span>
+              <span className="text-[8px] uppercase px-1.5 py-0.5 bg-amber-200 text-amber-900 rounded font-black tracking-wider">
+                DEMO: {demoRole}
+              </span>
+              <button 
+                onClick={exitDemoMode} 
+                className="text-amber-800 hover:text-rose-700 font-bold ml-1 hover:underline text-[10px]"
+                title="Exit Hackathon Demo Mode"
+              >
+                Exit Demo
+              </button>
+            </div>
+          ) : user ? (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-              <span className="max-w-[70px] sm:max-w-[100px] truncate">{currentProfile?.full_name || currentUser.email?.split('@')[0]}</span>
-              <span className="text-[8px] uppercase px-1 py-0.2 bg-slate-200 text-slate-700 rounded font-bold">{userRole}</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <span className="max-w-[70px] sm:max-w-[110px] truncate">{profile?.full_name || user.email?.split('@')[0]}</span>
+              <span className="text-[8px] uppercase px-1.5 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded font-bold">
+                {role || 'citizen'}
+              </span>
               <button 
                 onClick={signOut} 
                 className="text-slate-400 hover:text-rose-600 font-bold ml-1 hover:underline text-[10px]"
+                title="Sign out of Rakshak"
               >
-                Exit
+                Sign Out
               </button>
             </div>
           ) : (
             <button
               onClick={() => setIsAuthModalOpen(true)}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition shadow-sm"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition shadow-sm"
             >
               <LogIn className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Sign In</span>
+              <span>Sign In</span>
             </button>
           )}
+
 
           {/* Location Selector */}
           <div className="relative">
@@ -330,7 +360,7 @@ export const Header: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-black font-heading text-slate-900">
-                  SURAKSHA AI Operational Situation Brief
+                  Rakshak AI Operational Situation Brief
                 </h3>
                 <p className="text-xs text-amber-700 font-semibold">
                   Synthesized from active Supabase database signals & Gemini AI

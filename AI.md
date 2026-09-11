@@ -1,7 +1,8 @@
-# SURAKSHA (Rakshak) — AI Integration Architecture
+# Rakshak — AI Integration Architecture
 
 ## Overview
-SURAKSHA integrates Gemini 1.5 Flash as an intelligent decision-support system for disaster management commanders and emergency teams.
+Rakshak integrates Gemini 1.5 Flash as an intelligent decision-support system for disaster management commanders and emergency teams.
+
 
 ## Key Capabilities
 1. **Real-Time Priority Assessment**: Automatically calculates a priority score (0-100) and severity level for incoming SOS signals based on category, affected citizens, weather severity, and hazard vulnerability.

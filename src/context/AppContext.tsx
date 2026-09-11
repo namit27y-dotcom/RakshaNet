@@ -27,6 +27,7 @@ import { supabase } from '../services/supabaseClient';
 import { analyzeIncidentWithAi, generateSituationBriefWithAi } from '../services/aiService';
 import { fetchWeatherForLocation, WeatherData } from '../services/weatherService';
 import { getDamageReports } from '../services/recovery/damageReportService';
+import { useAuth } from './AuthContext';
 
 const mapDBResourceCategoryToUI = (cat: string): any => {
   switch (cat) {
@@ -146,10 +147,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [weatherError, setWeatherError] = useState<string | null>(null);
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
 
-  // Auth state variables
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [currentProfile, setCurrentProfile] = useState<any | null>(null);
-  const [userRole, setUserRole] = useState<'citizen' | 'volunteer' | 'ngo' | 'responder' | 'admin'>('citizen');
+  // Centralized Auth state from AuthContext
+  const { user: authUser, profile: authProfile, role: authRole, signOut: authSignOut } = useAuth();
+  const currentUser = authUser;
+  const currentProfile = authProfile;
+  const userRole = authRole || 'citizen';
 
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>(() => {
     const saved = localStorage.getItem('rakshak_contacts');
@@ -189,30 +191,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (_) {}
   };
 
-  // Profile loader helper
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      if (!error && data) {
-        setCurrentProfile(data);
-        setUserRole(data.role);
-      } else {
-        setUserRole('citizen');
-      }
-    } catch (_) {
-      setUserRole('citizen');
-    }
-  };
-
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    setCurrentUser(null);
-    setCurrentProfile(null);
-    setUserRole('citizen');
+    await authSignOut();
     showToast('🔑 Signed out successfully.');
   };
 
@@ -400,28 +380,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // 2. Set Up Supabase Realtime Channel and Auth Session Listeners
+  // 2. Set Up Supabase Realtime Channel
   useEffect(() => {
-    // Load initial user session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setCurrentUser(session.user);
-        fetchProfile(session.user.id);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        setCurrentUser(session.user);
-        await fetchProfile(session.user.id);
-      } else {
-        setCurrentUser(null);
-        setCurrentProfile(null);
-        setUserRole('citizen');
-      }
-      fetchSupabaseData();
-    });
-
     fetchSupabaseData();
 
     const channel = supabase
@@ -454,9 +414,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     return () => {
       supabase.removeChannel(channel);
-      subscription.unsubscribe();
     };
-  }, []);
+  }, [userRole, currentUser?.id]);
+
 
   const refreshWeather = useCallback(async (bypassCache = false) => {
     setIsWeatherLoading(true);

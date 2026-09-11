@@ -1,6 +1,7 @@
-# SURAKSHA (Rakshak) — Edge Functions & API Reference
+# Rakshak — Edge Functions & API Reference
 
-SURAKSHA exposes server-side endpoints via Supabase Edge Functions to ensure sensitive API keys (OpenWeather, Gemini AI) are never exposed to client browsers.
+Rakshak exposes server-side endpoints via Supabase Edge Functions to ensure sensitive API keys (OpenWeather, Gemini AI) are never exposed to client browsers.
+
 
 ## 1. Weather Edge Function (`/functions/v1/weather`)
 - **Method**: `POST`

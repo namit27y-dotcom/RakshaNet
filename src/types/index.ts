@@ -183,3 +183,17 @@ export interface AuditLogItem {
   metadata?: Record<string, any>;
   timestamp: string;
 }
+
+export type UserRole = 'citizen' | 'volunteer' | 'ngo' | 'responder' | 'admin';
+
+export interface UserProfile {
+  id: string;
+  full_name: string;
+  email: string;
+  role: UserRole;
+  phone?: string;
+  organization_name?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+

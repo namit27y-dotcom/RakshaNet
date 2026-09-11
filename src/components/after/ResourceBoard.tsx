@@ -97,7 +97,12 @@ export const ResourceBoard: React.FC = () => {
 
   const handleAllocate = async (match: ResourceMatch) => {
     if (!selectedNeed) return;
+    if (userRole !== 'ngo' && userRole !== 'responder' && userRole !== 'admin') {
+      showToast('❌ Access Restricted: Aid allocation requires NGO Coordinator or Responder clearance.');
+      return;
+    }
     setIsAllocating(match.resourceId);
+
 
     const inputQty = parseFloat(allocationQuantities[match.resourceId]);
     const neededQty = parseFloat(selectedNeed.quantity) || 1;
@@ -402,7 +407,7 @@ export const ResourceBoard: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-black font-heading text-slate-900">
-                  SURAKSHA NGO Resource Matchmaking
+                  Rakshak NGO Resource Matchmaking
                 </h3>
                 <p className="text-xs text-slate-500">
                   Select a recommended NGO resource match for: <strong className="text-slate-800">{selectedNeed.title} ({selectedNeed.quantity})</strong>

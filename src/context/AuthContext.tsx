@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
-import { supabase } from '../services/supabaseClient';
+import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 import { UserRole, UserProfile } from '../types';
 
 export interface SignUpParams {
@@ -164,6 +164,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Sign in method
   const signIn = async (email: string, password: string): Promise<AuthResponse> => {
     setAuthError(null);
+    if (!isSupabaseConfigured) {
+      const msg = 'Authentication service is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your deployment settings.';
+      setAuthError(msg);
+      return { success: false, error: msg };
+    }
+
     if (!email || !password) {
       return { success: false, error: 'Email and password are required.' };
     }
@@ -200,7 +206,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return { success: false, error: 'Unable to authenticate session.' };
     } catch (err: any) {
-      const msg = err?.message || 'Authentication service error. Please try again.';
+      let msg = err?.message || 'Authentication service error. Please try again.';
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('fetch')) {
+        msg = 'Unable to connect to the authentication server. Please check your internet connection or verify that your Supabase backend is reachable.';
+      }
       setAuthError(msg);
       return { success: false, error: msg };
     }
@@ -216,6 +225,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     organizationName
   }: SignUpParams): Promise<AuthResponse> => {
     setAuthError(null);
+
+    if (!isSupabaseConfigured) {
+      const msg = 'Authentication service is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your deployment settings.';
+      setAuthError(msg);
+      return { success: false, error: msg };
+    }
 
     // Validation
     const cleanEmail = email.trim().toLowerCase();
@@ -288,7 +303,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         message: 'Account created! Please check your email to complete verification.'
       };
     } catch (err: any) {
-      const msg = err?.message || 'Registration service error. Please try again.';
+      let msg = err?.message || 'Registration service error. Please try again.';
+      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('fetch')) {
+        msg = 'Unable to connect to the authentication server. Please check your internet connection or verify that your Supabase backend is reachable.';
+      }
       setAuthError(msg);
       return { success: false, error: msg };
     }

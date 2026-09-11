@@ -38,6 +38,7 @@ export const LiveMap: React.FC = () => {
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
   const markersGroupRef = useRef<L.LayerGroup | null>(null);
 
   const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
@@ -63,25 +64,18 @@ export const LiveMap: React.FC = () => {
     return true;
   });
 
-  // Initialize Map
+  // Initialize Leaflet Map
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
-      // Create map instance
       const map = L.map(mapContainerRef.current, {
-        center: selectedLocation.coordinates,
-        zoom: 11,
+        center: userCoords || selectedLocation.coordinates,
+        zoom: userCoords ? 17 : 11,
         zoomControl: false
       });
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-      // CartoDB Voyager Light tile layer
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a> & OpenStreetMap',
-        maxZoom: 19
-      }).addTo(map);
 
       const layerGroup = L.layerGroup().addTo(map);
       markersGroupRef.current = layerGroup;
@@ -92,53 +86,91 @@ export const LiveMap: React.FC = () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
+        tileLayerRef.current = null;
       }
     };
   }, []);
 
-  // Update Tile Layer
+  // Update Base Tile Layer (Clean non-watermarked providers with Google Maps support)
   useEffect(() => {
     if (!mapInstanceRef.current) return;
     const map = mapInstanceRef.current;
 
-    // Remove existing tile layers
-    map.eachLayer((layer) => {
-      if (layer instanceof L.TileLayer) {
-        map.removeLayer(layer);
-      }
-    });
-
-    let tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-    let subdomains: string | string[] = 'abc';
-
-    if (activeTile === 'google-satellite') {
-      tileUrl = googleApiKey
-        ? `https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${googleApiKey}`
-        : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-      subdomains = [];
-    } else if (activeTile === 'google-roadmap') {
-      tileUrl = googleApiKey
-        ? `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${googleApiKey}`
-        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-      subdomains = googleApiKey ? [] : 'abc';
-    } else if (activeTile === 'google-terrain') {
-      tileUrl = googleApiKey
-        ? `https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${googleApiKey}`
-        : 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
-      subdomains = googleApiKey ? [] : 'abc';
+    // Remove previous tile layer cleanly
+    if (tileLayerRef.current) {
+      map.removeLayer(tileLayerRef.current);
+      tileLayerRef.current = null;
     }
 
-    L.tileLayer(tileUrl, { maxZoom: 20, subdomains }).addTo(map);
+    let tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    let attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+    let maxZoom = 19;
+    let subdomains: string | string[] = [];
+
+    if (activeTile === 'google-satellite') {
+      if (googleApiKey) {
+        tileUrl = `https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${googleApiKey}`;
+        attribution = '&copy; Google Maps';
+        maxZoom = 20;
+      } else {
+        // High-res Esri World Imagery (No watermark, no key required)
+        tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        attribution = 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics';
+        maxZoom = 19;
+      }
+    } else if (activeTile === 'google-roadmap') {
+      if (googleApiKey) {
+        tileUrl = `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${googleApiKey}`;
+        attribution = '&copy; Google Maps';
+        maxZoom = 20;
+      } else {
+        // Standard OpenStreetMap (No watermark, no key required)
+        tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+        attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        maxZoom = 19;
+      }
+    } else if (activeTile === 'google-terrain') {
+      if (googleApiKey) {
+        tileUrl = `https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${googleApiKey}`;
+        attribution = '&copy; Google Maps';
+        maxZoom = 20;
+      } else {
+        // Esri World Topo (No watermark, no key required)
+        tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}';
+        attribution = 'Tiles &copy; Esri, USGS, FAO';
+        maxZoom = 19;
+      }
+    } else {
+      // Light Mode: Clean OpenStreetMap standard
+      tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+      attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+      maxZoom = 19;
+    }
+
+    const newLayer = L.tileLayer(tileUrl, {
+      maxZoom,
+      attribution,
+      subdomains
+    });
+    newLayer.addTo(map);
+    tileLayerRef.current = newLayer;
   }, [activeTile, googleApiKey]);
 
-  // Recenter map when selectedLocation changes
+  // Recenter map when userCoords changes (GPS lock to zoom 17)
   useEffect(() => {
-    if (mapInstanceRef.current) {
+    if (mapInstanceRef.current && userCoords) {
+      mapInstanceRef.current.flyTo(userCoords, 17, { duration: 1.5 });
+    }
+  }, [userCoords]);
+
+  // Recenter map when selectedLocation changes (if no manual user GPS active)
+  useEffect(() => {
+    if (mapInstanceRef.current && !userCoords) {
       mapInstanceRef.current.flyTo(selectedLocation.coordinates, 11, { duration: 1.2 });
     }
   }, [selectedLocation]);
 
-  // Render Markers
+  // Render Interactive Markers
   useEffect(() => {
     if (!mapInstanceRef.current || !markersGroupRef.current) return;
     const layerGroup = markersGroupRef.current;
@@ -238,17 +270,30 @@ export const LiveMap: React.FC = () => {
       });
     }
 
-    // 5. User GPS Pin
+    // 5. User GPS Pin & Accuracy Circle
     if (userCoords) {
+      const accuracyCircle = L.circle(userCoords, {
+        radius: 40,
+        color: '#2563eb',
+        fillColor: '#3b82f6',
+        fillOpacity: 0.18,
+        weight: 1.5
+      });
+      layerGroup.addLayer(accuracyCircle);
+
       const userIcon = L.divIcon({
         html: `
-          <div class="w-5 h-5 rounded-full bg-blue-600 border-2 border-white shadow-lg animate-pulse"></div>
+          <div class="relative flex items-center justify-center w-6 h-6">
+            <div class="absolute w-6 h-6 rounded-full bg-blue-500/40 animate-ping"></div>
+            <div class="w-4 h-4 rounded-full bg-blue-600 border-2 border-white shadow-xl"></div>
+          </div>
         `,
         className: 'bg-transparent',
-        iconSize: [20, 20],
-        iconAnchor: [10, 10]
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
       });
       const userMarker = L.marker(userCoords, { icon: userIcon });
+      userMarker.bindTooltip('📍 Your Current GPS Location', { permanent: false, direction: 'top' });
       layerGroup.addLayer(userMarker);
     }
   }, [
@@ -318,6 +363,15 @@ export const LiveMap: React.FC = () => {
           >
             <Activity className="w-3.5 h-3.5" />
             <span>USGS Quakes ({usgsQuakes.length})</span>
+          </button>
+
+          <button
+            onClick={detectUserLocation}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition"
+            title="Lock My Exact GPS Location (Zoom 17)"
+          >
+            <Locate className="w-3.5 h-3.5 text-blue-600" />
+            <span>GPS Lock</span>
           </button>
         </div>
 

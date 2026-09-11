@@ -40,8 +40,8 @@ export const LiveMap: React.FC = () => {
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersGroupRef = useRef<L.LayerGroup | null>(null);
 
-  const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBbS8AIl6V4uK4wPU6s3RHOv8UKAVaWkII';
-  const [activeTile, setActiveTile] = useState<'google-roadmap' | 'google-satellite' | 'google-terrain' | 'voyager'>('google-satellite');
+  const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+  const [activeTile, setActiveTile] = useState<'google-roadmap' | 'google-satellite' | 'google-terrain' | 'voyager'>('voyager');
   const [showSosLayer, setShowSosLayer] = useState(true);
   const [showSafeLayer, setShowSafeLayer] = useState(true);
   const [showShelterLayer, setShowShelterLayer] = useState(true);
@@ -112,14 +112,20 @@ export const LiveMap: React.FC = () => {
     let subdomains: string | string[] = 'abc';
 
     if (activeTile === 'google-satellite') {
-      tileUrl = `https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${googleApiKey}`;
+      tileUrl = googleApiKey
+        ? `https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&key=${googleApiKey}`
+        : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
       subdomains = [];
     } else if (activeTile === 'google-roadmap') {
-      tileUrl = `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${googleApiKey}`;
-      subdomains = [];
+      tileUrl = googleApiKey
+        ? `https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=${googleApiKey}`
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+      subdomains = googleApiKey ? [] : 'abc';
     } else if (activeTile === 'google-terrain') {
-      tileUrl = `https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${googleApiKey}`;
-      subdomains = [];
+      tileUrl = googleApiKey
+        ? `https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}&key=${googleApiKey}`
+        : 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
+      subdomains = googleApiKey ? [] : 'abc';
     }
 
     L.tileLayer(tileUrl, { maxZoom: 20, subdomains }).addTo(map);
